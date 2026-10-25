@@ -6,16 +6,19 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 
-/** تم نعنایی تیره */
+/** تم روح: بنفش شبانه + درخشش اکتوپلاسمی */
 object T {
-    val bg = 0xFF06130F.toInt()
-    val card = 0xFF0D211B.toInt()
-    val stroke = 0xFF1B3D33.toInt()
-    val mint = 0xFF5EEAC0.toInt()
-    val mintDark = 0xFF1F7A62.toInt()
-    val text = 0xFFE8FFF6.toInt()
-    val sub = 0xFF8DB5A6.toInt()
-    val red = 0xFFFF7A7A.toInt()
+    val bg = 0xFF0B0919.toInt()
+    val bgTop = 0xFF1B1440.toInt()
+    val card = 0xFF14112B.toInt()
+    val cardOn = 0xFF241A57.toInt()
+    val stroke = 0xFF2C2756.toInt()
+    val mint = 0xFFB9A4FF.toInt()      // رنگ اصلی (بنفش روحانی)
+    val mintDark = 0xFF4A3B9C.toInt()
+    val text = 0xFFF0ECFF.toInt()
+    val sub = 0xFF8F89C4.toInt()
+    val red = 0xFFFF7A9A.toInt()
+    val amber = 0xFF7EF0D8.toInt()     // رنگ حالت «در حال بیدار شدن» (سبز اکتوپلاسمی)
 }
 
 fun Context.dp(v: Int) = (v * resources.displayMetrics.density).toInt()
@@ -58,4 +61,20 @@ fun Context.chips(options: List<String>, selected: String, onPick: (String) -> U
     }
     paint(selected)
     return row
+}
+
+fun Context.circle(fill: Int, strokeColor: Int, strokeDp: Int) =
+    GradientDrawable().apply {
+        shape = GradientDrawable.OVAL
+        setColor(fill)
+        if (strokeDp > 0) setStroke(dp(strokeDp), strokeColor)
+    }
+
+fun fmtBytes(b: Long): String {
+    if (b < 1024) return "$b B"
+    val units = arrayOf("KB", "MB", "GB", "TB")
+    var v = b / 1024.0
+    var i = 0
+    while (v >= 1024 && i < units.lastIndex) { v /= 1024; i++ }
+    return String.format(java.util.Locale.US, "%.1f %s", v, units[i])
 }

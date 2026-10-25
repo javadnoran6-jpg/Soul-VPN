@@ -4,6 +4,7 @@ import android.content.Context
 import java.io.File
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 /** هسته Aether را به‌صورت یک پروسه جدا اجرا می‌کند و پراکسی SOCKS5 محلی می‌دهد. */
@@ -14,7 +15,11 @@ class AetherCore(private val context: Context) {
         const val SOCKS_PORT = 1819
     }
 
+    /** وقتی هسته بدون درخواست ما بمیرد صدا زده می‌شود (نه موقع stop عادی). */
+    @Volatile var onExit: (() -> Unit)? = null
+
     private var process: Process? = null
+    private var stopping = false
 
     // فقط masque و turbo/balanced در مستندات تأیید شده‌اند؛ بقیه مقدارها حدسی‌اند، با --help هسته چک کنید
     private fun protocolValue(ui: String) = when (ui) {
@@ -37,17 +42,30 @@ class AetherCore(private val context: Context) {
         pb.directory(context.filesDir) // محل ذخیره هویت و تنظیمات هسته
         pb.environment().apply {
             put("HOME", context.filesDir.absolutePath)
-            // متغیرهای محیطی مستند‌شده در README پروژه (به جای پرامپت‌های تعاملی)
             put("AETHER_PROTOCOL", protocolValue(prefs.protocol))
             put("AETHER_SCAN", prefs.scan.lowercase())
         }
         pb.redirectErrorStream(true)
         val p = pb.start()
-        process = p
+
+        synchronized(this) {
+            if (stopping) { p.destroy(); return }
+            process = p
+        }
 
         thread(name = "aether-log", isDaemon = true) {
-            p.inputStream.bufferedReader().forEachLine { AppState.log(it) }
-            AppState.log("هسته متوقف شد")
+            // وقتی stop() پروسه را می‌کشد، استریم بسته می‌شود و IOException می‌آید.
+            // قبلاً این استثنا گرفته نمی‌شد و کل اپ را کرش می‌کرد.
+            try {
+                p.inputStream.bufferedReader().forEachLine { AppState.log(it) }
+            } catch (_: Throwable) {
+            }
+            val code = try { p.waitFor() } catch (_: Throwable) { -1 }
+            val intentional = synchronized(this@AetherCore) { stopping }
+            if (!intentional) {
+                AppState.log("هسته ناگهانی متوقف شد (کد $code)")
+                onExit?.invoke()
+            }
         }
     }
 
@@ -55,17 +73,27 @@ class AetherCore(private val context: Context) {
     fun waitUntilReady(timeoutMs: Long = 90_000): Boolean {
         val end = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < end) {
-            if (process?.isAlive != true) return false
+            val p = synchronized(this) { process }
+            if (p == null || !p.isAlive) return false
             try {
                 Socket().use { it.connect(InetSocketAddress(SOCKS_HOST, SOCKS_PORT), 500) }
                 return true
-            } catch (_: Exception) { Thread.sleep(500) }
+            } catch (_: Exception) {
+                try { Thread.sleep(500) } catch (_: InterruptedException) { return false }
+            }
         }
         return false
     }
 
+    /** idempotent و امن برای چندبار صدا زدن؛ از ترد اصلی صدا نزنید (تا ۲ ثانیه صبر می‌کند). */
     fun stop() {
-        process?.destroy()
-        process = null
+        var p: Process? = null
+        synchronized(this) { stopping = true; p = process; process = null }
+        val proc = p ?: return
+        proc.destroy()
+        try {
+            if (!proc.waitFor(2, TimeUnit.SECONDS)) proc.destroyForcibly()
+        } catch (_: Throwable) {
+        }
     }
 }

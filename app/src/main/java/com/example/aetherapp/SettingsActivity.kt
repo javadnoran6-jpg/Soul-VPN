@@ -15,7 +15,7 @@ class SettingsActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL; setBackgroundColor(T.bg)
             setPadding(dp(20), dp(44), dp(20), dp(24))
         }
-        col.addView(label("←  Tunnel settings", 22f, T.text, true).apply {
+        col.addView(label("←  Soul settings", 22f, T.text, true).apply {
             setOnClickListener { finish() }; setPadding(0, 0, 0, dp(16))
         })
         col.addView(label(
