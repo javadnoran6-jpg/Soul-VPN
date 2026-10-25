@@ -64,7 +64,7 @@ class AetherVpnService : VpnService() {
                   port: ${AetherCore.SOCKS_PORT}
                 """.trimIndent()
             )
-            TProxyService.TProxyStartService(cfg.absolutePath, pfd.fd)
+            if (!TProxyService.TProxyStartService(cfg.absolutePath, pfd.fd)) { AppState.log("hev start failed"); shutdown(); return }
             AppState.updateRunning(true)
             AppState.log("متصل شد")
         } catch (e: Throwable) {
