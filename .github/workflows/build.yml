@@ -10,7 +10,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 17 }
-      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: "8.7" }
 
@@ -50,8 +49,7 @@ jobs:
       - name: Build hev-socks5-tunnel
         run: |
           set -euo pipefail
-          sdkmanager "ndk;26.3.11579264"
-          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/26.3.11579264
+          export ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME
           git clone --recursive https://github.com/heiher/hev-socks5-tunnel
           cd hev-socks5-tunnel
           $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk \
