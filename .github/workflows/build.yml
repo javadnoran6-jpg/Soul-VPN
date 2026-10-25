@@ -12,18 +12,28 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: "8.7" }
-      - name: Fetch Aether core
+
+      - name: Fetch Aether core (latest release, android arm64)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p dl app/src/main/jniLibs/arm64-v8a
-          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/CluvexStudio/Aether/releases/latest -o rel.json
-          jq -r '.assets[].name' rel.json
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/CluvexStudio/Aether/releases/latest -o rel.json
+          echo "== release assets =="; jq -r '.assets[].name' rel.json
           NAME=$(jq -r '[.assets[].name | select(test("android";"i")) | select(test("arm64|aarch64";"i"))][0] // empty' rel.json)
-          [ -n "$NAME" ] || { echo "no android arm64 asset"; exit 1; }
+          if [ -z "$NAME" ]; then echo "::error::no android arm64 asset found; see list above"; exit 1; fi
           URL=$(jq -r --arg n "$NAME" '.assets[]|select(.name==$n).browser_download_url' rel.json)
+          echo "using $NAME"
           curl -fL "$URL" -o "dl/$NAME"
+          SUMURL=$(jq -r '[.assets[]|select(.name|test("SHA256SUMS";"i"))][0].browser_download_url // empty' rel.json)
+          if [ -n "$SUMURL" ]; then
+            curl -fL "$SUMURL" -o dl/SHA256SUMS.txt
+            (cd dl && grep -F "$NAME" SHA256SUMS.txt | sha256sum -c -)
+          else
+            echo "::warning::no SHA256SUMS in release, checksum not verified"
+          fi
           mkdir dl/x
           case "$NAME" in
             *.zip) unzip -o "dl/$NAME" -d dl/x ;;
@@ -31,16 +41,21 @@ jobs:
             *) cp "dl/$NAME" dl/x/aether ;;
           esac
           BIN=$(find dl/x -type f -name 'aether*' ! -name '*.sha256' ! -name '*.txt' | head -1)
+          file "$BIN"
+          file "$BIN" | grep -qi "aarch64" || { echo "::error::not an arm64 binary"; exit 1; }
           cp "$BIN" app/src/main/jniLibs/arm64-v8a/libaether.so
           chmod +x app/src/main/jniLibs/arm64-v8a/libaether.so
+
       - name: Build hev-socks5-tunnel
         run: |
           set -euo pipefail
           export ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME
           git clone --recursive https://github.com/heiher/hev-socks5-tunnel
           cd hev-socks5-tunnel
-          $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_ABI=arm64-v8a APP_PLATFORM=android-26 NDK_LIBS_OUT=./libs
+          $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk \
+            APP_ABI=arm64-v8a APP_PLATFORM=android-26 NDK_LIBS_OUT=./libs
           cp libs/arm64-v8a/libhev-socks5-tunnel.so ../app/src/main/jniLibs/arm64-v8a/
+
       - name: Assemble
         run: |
           set +e
@@ -51,7 +66,8 @@ jobs:
           echo "=== WHAT WENT WRONG ==="
           grep -A6 "What went wrong" build.log | head -20
           exit $code
+
       - uses: actions/upload-artifact@v4
         with:
-          name: aether-app-apk
+          name: soul-apk
           path: app/build/outputs/apk/debug/*.apk

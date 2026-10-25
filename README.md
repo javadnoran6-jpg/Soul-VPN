@@ -1,4 +1,4 @@
-# Aether App (اسکلت اولیه)
+# Soul (اسکلت اولیه)
 
 ساختار: MainActivity → AetherVpnService → HEV SOCKS5 tunnel → هسته Aether (127.0.0.1:1819)
 
@@ -12,7 +12,10 @@
 2. کتابخانه hev-socks5-tunnel:
    از مخزن heiher/hev-socks5-tunnel با NDK برای arm64-v8a بسازید و
    `libhev-socks5-tunnel.so` را کنار فایل بالا بگذارید.
-   (کلاس hev.htproxy.TProxyService باید با بیلدی که می‌گیرید هم‌نام باشد؛ بررسی کنید.)
+   (کلاس hev.htproxy.TProxyService باید دقیقاً با توابع JNI همان بیلد جور باشد:
+   StartService / StopService / IsRunning با خروجی Boolean و GetStats با خروجی LongArray.
+   اگر hev تغییر کند، در Log خطای `no static or non-static method …` می‌بینید؛
+   در این حالت TProxyService.kt را با بخش API در README مخزن hev هماهنگ کنید.)
 
 ## ساخت
 پوشه را در Android Studio باز کنید (Gradle wrapper را خودش می‌سازد) و Run بزنید.
