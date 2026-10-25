@@ -25,7 +25,7 @@ class AetherVpnService : VpnService() {
         if (intent?.action == ACTION_STOP) { shutdown(); return START_NOT_STICKY }
         if (AppState.running) return START_STICKY
 
-        AppState.setConnecting(true)
+        AppState.updateConnecting(true)
         startForeground(1, buildNotification())
         thread(name = "aether-start") { connect() }
         return START_STICKY
@@ -65,7 +65,7 @@ class AetherVpnService : VpnService() {
                 """.trimIndent()
             )
             TProxyService.TProxyStartService(cfg.absolutePath, pfd.fd)
-            AppState.setRunning(true)
+            AppState.updateRunning(true)
             AppState.log("متصل شد")
         } catch (e: Throwable) {
             AppState.log("خطا: ${e.message}")
@@ -77,7 +77,7 @@ class AetherVpnService : VpnService() {
         try { TProxyService.TProxyStopService() } catch (_: Throwable) {}
         tun?.close(); tun = null
         core?.stop(); core = null
-        AppState.setRunning(false)
+        AppState.updateRunning(false)
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }

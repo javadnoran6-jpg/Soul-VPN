@@ -11,11 +11,11 @@ object AppState {
     var onLog: ((String) -> Unit)? = null
     private val main = Handler(Looper.getMainLooper())
 
-    fun setRunning(v: Boolean) {
+    fun updateRunning(v: Boolean) {
         running = v; connecting = false
         connectedAt = if (v) System.currentTimeMillis() else 0L
         main.post { onChange?.invoke() }
     }
-    fun setConnecting(v: Boolean) { connecting = v; main.post { onChange?.invoke() } }
+    fun updateConnecting(v: Boolean) { connecting = v; main.post { onChange?.invoke() } }
     fun log(line: String) { main.post { onLog?.invoke(line) } }
 }
