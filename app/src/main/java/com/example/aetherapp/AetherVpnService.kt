@@ -43,7 +43,7 @@ class AetherVpnService : VpnService() {
                 }
                 val gen = begin()
                 if (gen > 0) {
-                    AppState.setConnecting(true)
+                    AppState.updateConnecting(true)
                     thread(name = "aether-start") { connect(gen) }
                 }
             }
@@ -113,7 +113,7 @@ class AetherVpnService : VpnService() {
             if (stale) { try { pfd.close() } catch (_: Throwable) {}; return }
             if (!started) { AppState.log("هسته تونل (hev) شروع نشد"); shutdown(); return }
 
-            AppState.setRunning(true)
+            AppState.updateRunning(true)
             updateNotification("روحت آزاد است")
             AppState.log("متصل شد")
             startStats(gen)
@@ -176,7 +176,7 @@ class AetherVpnService : VpnService() {
         }
         try { t?.close() } catch (_: Throwable) {}
         c?.stop()
-        AppState.setRunning(false)
+        AppState.updateRunning(false)
         try { stopForeground(STOP_FOREGROUND_REMOVE) } catch (_: Throwable) {}
         stopSelf()
     }

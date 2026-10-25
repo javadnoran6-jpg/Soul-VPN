@@ -25,14 +25,14 @@ object AppState {
     private val buffer = ArrayDeque<String>()
     private val timeFmt = DateTimeFormatter.ofPattern("HH:mm:ss")
 
-    fun setRunning(v: Boolean) {
+    fun updateRunning(v: Boolean) {
         running = v; connecting = false
         connectedAt = if (v) System.currentTimeMillis() else 0L
         if (!v) { rxTotal = 0L; txTotal = 0L; rxRate = 0L; txRate = 0L }
         main.post { onChange?.invoke(); onStats?.invoke() }
     }
 
-    fun setConnecting(v: Boolean) { connecting = v; main.post { onChange?.invoke() } }
+    fun updateConnecting(v: Boolean) { connecting = v; main.post { onChange?.invoke() } }
 
     fun setStats(rx: Long, tx: Long, rxSpeed: Long, txSpeed: Long) {
         rxTotal = rx; txTotal = tx; rxRate = rxSpeed; txRate = txSpeed
