@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         val titles = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         titles.addView(label("Soul", 30f, T.text, true))
-        titles.addView(label("Let your soul slip free", 13f, T.mint))
+        titles.addView(label("Two sides, one soul", 13f, T.mint))
         top.addView(titles, LinearLayout.LayoutParams(0, -2, 1f))
         top.addView(label("⚙", 26f, T.mint).apply {
             setPadding(dp(12), dp(8), dp(12), dp(8))
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         orb = ImageView(this).apply {
             setImageResource(R.drawable.ic_ghost)
             scaleType = ImageView.ScaleType.FIT_CENTER
-            setPadding(dp(44), dp(38), dp(44), dp(38))
+            setPadding(dp(34), dp(34), dp(34), dp(34))
             setOnClickListener { toggle() }
         }
         stage.addView(ringA, FrameLayout.LayoutParams(dp(190), dp(190), Gravity.CENTER))
@@ -260,11 +260,11 @@ class MainActivity : AppCompatActivity() {
     /** روح روی هوا بالا و پایین می‌رود. */
     private fun startFloat() {
         floatAnim?.cancel()
-        floatAnim = ObjectAnimator.ofFloat(orb, View.TRANSLATION_Y, dp(6).toFloat(), -dp(6).toFloat()).apply {
-            duration = 2200
-            repeatMode = ValueAnimator.REVERSE
+        floatAnim = ObjectAnimator.ofFloat(orb, View.ROTATION, 0f, 360f).apply {
+            duration = 16000
+            repeatMode = ValueAnimator.RESTART
             repeatCount = ValueAnimator.INFINITE
-            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+            interpolator = android.view.animation.LinearInterpolator()
             start()
         }
     }

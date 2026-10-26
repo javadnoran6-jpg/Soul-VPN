@@ -8,17 +8,17 @@ import android.widget.TextView
 
 /** تم روح: بنفش شبانه + درخشش اکتوپلاسمی */
 object T {
-    val bg = 0xFF0B0919.toInt()
-    val bgTop = 0xFF1B1440.toInt()
-    val card = 0xFF14112B.toInt()
-    val cardOn = 0xFF241A57.toInt()
-    val stroke = 0xFF2C2756.toInt()
-    val mint = 0xFFB9A4FF.toInt()      // رنگ اصلی (بنفش روحانی)
-    val mintDark = 0xFF4A3B9C.toInt()
-    val text = 0xFFF0ECFF.toInt()
-    val sub = 0xFF8F89C4.toInt()
-    val red = 0xFFFF7A9A.toInt()
-    val amber = 0xFF7EF0D8.toInt()     // رنگ حالت «در حال بیدار شدن» (سبز اکتوپلاسمی)
+    val bg = 0xFF0A0A0A.toInt()
+    val bgTop = 0xFF1C1C1C.toInt()
+    val card = 0xFF151515.toInt()
+    val cardOn = 0xFF262626.toInt()
+    val stroke = 0xFF303030.toInt()
+    val mint = 0xFFF5F5F5.toInt()
+    val mintDark = 0xFF555555.toInt()
+    val text = 0xFFF5F5F5.toInt()
+    val sub = 0xFF8E8E8E.toInt()
+    val red = 0xFFA8A8A8.toInt()
+    val amber = 0xFFA8A8A8.toInt()
 }
 
 fun Context.dp(v: Int) = (v * resources.displayMetrics.density).toInt()

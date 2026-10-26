@@ -1,13 +1,6 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="108" android:viewportHeight="108">
-    <group android:translateX="30" android:translateY="24">
-        <path android:fillColor="#FFEDE7FF" android:fillType="evenOdd"
-            android:pathData="M6,56 V24 A18,18 0 0 1 42,24 V56 L36,50 L30,56 L24,50 L18,56 L12,50 Z M13.8,26 a3.2,4.5 0 1,0 6.4,0 a3.2,4.5 0 1,0 -6.4,0 Z M27.8,26 a3.2,4.5 0 1,0 6.4,0 a3.2,4.5 0 1,0 -6.4,0 Z M21.5,37 a2.5,3.2 0 1,0 5,0 a2.5,3.2 0 1,0 -5,0 Z"/>
-    </group>
-    <!-- جرقه‌های ریز دور روح -->
-    <path android:fillColor="#FFB9A4FF"
-        android:pathData="M30,34 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0"/>
-    <path android:fillColor="#FF7EF0D8"
-        android:pathData="M80,44 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+<group android:translateX="14" android:translateY="14">
+<path android:fillColor="#FFF5F5F5" android:fillType="evenOdd" android:pathData="M40,12 A28,28 0 1 1 40,68 A28,28 0 1 1 40,12 Z M40,12 A28,28 0 0 1 40,68 A14,14 0 0 1 40,40 A14,14 0 0 0 40,12 Z M35.5,26 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z M35.5,54 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"/>
+<path android:fillColor="#00000000" android:strokeColor="#FF8E8E8E" android:strokeWidth="2" android:pathData="M40,9 A31,31 0 1 1 40,71 A31,31 0 1 1 40,9 Z"/>
+</group>
 </vector>
