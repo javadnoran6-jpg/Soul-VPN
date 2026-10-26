@@ -33,6 +33,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var hint: TextView
     private lateinit var timer: TextView
     private lateinit var mode: TextView
+    private lateinit var ipBox: LinearLayout
+    private lateinit var ipFlag: TextView
+    private lateinit var ipText: TextView
+    private lateinit var ipCountry: TextView
     private lateinit var logView: TextView
     private lateinit var downRate: TextView
     private lateinit var downTotal: TextView
@@ -101,6 +105,27 @@ class MainActivity : AppCompatActivity() {
             background = shape(T.bg, 14, T.stroke, 1)
         }
         card.addView(status); card.addView(hint); card.addView(timer)
+
+        // کادر آی‌پی متصل + پرچم کشور (زیر تایمر)
+        ipFlag = label("🌐", 26f, T.text)
+        ipText = label("", 15f, T.text, true).apply { typeface = Typeface.MONOSPACE }
+        ipCountry = label("", 11f, T.sub)
+        val ipCol = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), 0, 0, 0)
+            addView(ipText); addView(ipCountry)
+        }
+        ipBox = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(16), dp(10), dp(16), dp(10))
+            background = shape(T.bg, 14, T.stroke, 1)
+            visibility = View.GONE
+            addView(ipFlag); addView(ipCol)
+        }
+        card.addView(ipBox, LinearLayout.LayoutParams(-2, -2).apply {
+            gravity = Gravity.CENTER_HORIZONTAL; bottomMargin = dp(10)
+        })
         card.addView(mode, LinearLayout.LayoutParams(-2, -2).apply { gravity = Gravity.CENTER_HORIZONTAL })
         root.addView(card, LinearLayout.LayoutParams(-1, -2))
 
@@ -147,12 +172,13 @@ class MainActivity : AppCompatActivity() {
         AppState.onChange = { render() }
         AppState.onLog = { refreshLog() }
         AppState.onStats = { renderStats() }
+        AppState.onIp = { renderIp() }
         if (Build.VERSION.SDK_INT >= 33) notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     override fun onResume() {
         super.onResume()
-        render(); renderStats(); refreshLog()
+        render(); renderStats(); refreshLog(); renderIp()
         startFloat()
         tick.post(clock)
     }
@@ -208,6 +234,18 @@ class MainActivity : AppCompatActivity() {
         if (state != 2) timer.text = "00:00:00"
         val p = Prefs(this)
         mode.text = "${p.protocol}  ·  ${p.scan}  ·  ${p.ip}"
+        renderIp()
+    }
+
+    private fun renderIp() {
+        if (!AppState.running) { ipBox.visibility = View.GONE; return }
+        ipBox.visibility = View.VISIBLE
+        val i = AppState.ipInfo
+        if (i == null) {
+            ipFlag.text = "🌐"; ipText.text = "Detecting IP…"; ipCountry.text = ""
+        } else {
+            ipFlag.text = i.flag; ipText.text = i.ip; ipCountry.text = i.country
+        }
     }
 
     private fun renderStats() {
@@ -291,7 +329,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        AppState.onChange = null; AppState.onLog = null; AppState.onStats = null
+        AppState.onChange = null; AppState.onLog = null; AppState.onStats = null; AppState.onIp = null
         super.onDestroy()
     }
 }

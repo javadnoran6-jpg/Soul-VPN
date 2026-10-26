@@ -117,6 +117,7 @@ class AetherVpnService : VpnService() {
             updateNotification("روحت آزاد است")
             AppState.log("متصل شد")
             startStats(gen)
+            fetchIp(gen)
         } catch (e: Throwable) {
             AppState.log("خطا: ${e.message}")
             shutdown()
@@ -144,6 +145,25 @@ class AetherVpnService : VpnService() {
                 lastRx = rx; lastTx = tx; lastAt = now
                 AppState.setStats(rx, tx, rxRate, txRate)
             }
+        }
+    }
+
+    /** آی‌پی و کشور خروجی را از داخل تونل می‌پرسد؛ تا ۵ بار تلاش می‌کند. */
+    private fun fetchIp(gen: Int) {
+        thread(name = "aether-ip", isDaemon = true) {
+            repeat(5) {
+                if (!isCurrent(gen)) return@thread
+                val info = IpLookup.fetch()
+                if (info != null) {
+                    if (isCurrent(gen)) {
+                        AppState.updateIp(info)
+                        AppState.log("IP: ${info.ip} (${info.code})")
+                    }
+                    return@thread
+                }
+                try { Thread.sleep(2000) } catch (_: InterruptedException) { return@thread }
+            }
+            AppState.log("آی‌پی خروجی پیدا نشد")
         }
     }
 

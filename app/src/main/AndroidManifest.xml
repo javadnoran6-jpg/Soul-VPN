@@ -21,6 +21,7 @@
         </activity>
 
         <activity android:name=".SettingsActivity" android:exported="false" />
+        <activity android:name=".ScannerActivity" android:exported="false" />
 
         <service
             android:name=".AetherVpnService"

@@ -21,13 +21,13 @@ class AetherCore(private val context: Context) {
     private var process: Process? = null
     private var stopping = false
 
-    // فقط masque و turbo/balanced در مستندات تأیید شده‌اند؛ بقیه مقدارها حدسی‌اند، با --help هسته چک کنید
+    // طبق مستندات Aether مقدارهای مجاز AETHER_PROTOCOL فقط masque و wg و gool است
     private fun protocolValue(ui: String) = when (ui) {
-        "Smart" -> "smart"
+        "Smart" -> "masque"
         "MASQUE" -> "masque"
-        "WireGuard" -> "wireguard"
+        "WireGuard" -> "wg"
         "WARP×2" -> "gool"
-        "MASQUE×2" -> "masque-x2"
+        "MASQUE×2" -> "masque"
         else -> "masque"
     }
 
@@ -37,13 +37,21 @@ class AetherCore(private val context: Context) {
 
         val prefs = Prefs(context)
         val args = mutableListOf(bin.absolutePath)
-        when (prefs.ip) { "IPv4" -> args += "-4"; "IPv6" -> args += "-6" }
+        when (prefs.ip) { "IPv4" -> args += "-4"; "IPv6" -> args += "-6"; else -> args += "--dual" }
+        val proto = protocolValue(prefs.protocol)
+        if (prefs.peer.isNotBlank() && proto != "gool") {
+            val port = if (proto == "wg") 2408 else 443
+            args += listOf("--peer", "${prefs.peer}:$port")
+        }
         val pb = ProcessBuilder(args)
         pb.directory(context.filesDir) // محل ذخیره هویت و تنظیمات هسته
         pb.environment().apply {
             put("HOME", context.filesDir.absolutePath)
             put("AETHER_PROTOCOL", protocolValue(prefs.protocol))
             put("AETHER_SCAN", prefs.scan.lowercase())
+            // هر متغیری که ست نشود، هسته پرامپت تعاملی می‌پرسد و بدون ترمینال گیر می‌کند
+            put("AETHER_NOIZE", if (proto == "masque") "firewall" else "balanced")
+            put("AETHER_QUICK_RECONNECT", "1")
         }
         pb.redirectErrorStream(true)
         val p = pb.start()

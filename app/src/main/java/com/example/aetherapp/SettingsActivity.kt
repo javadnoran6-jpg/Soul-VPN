@@ -1,5 +1,6 @@
 package com.example.aetherapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -21,6 +22,14 @@ class SettingsActivity : AppCompatActivity() {
         col.addView(label(
             if (AppState.running) "Disconnect to change these. They are handed to the engine when it starts."
             else "These are handed to the engine when it starts.", 13f, T.sub).apply { setPadding(0, 0, 0, dp(16)) })
+
+        col.addView(cardBox().apply {
+            addView(label("IP Scanner  ›", 16f, T.text, true))
+            addView(label(
+                if (p.peer.isBlank()) "Find the fastest and the most stable endpoint"
+                else "Forced endpoint: ${p.peer}", 12f, T.sub).apply { setPadding(0, dp(4), 0, 0) })
+            setOnClickListener { startActivity(Intent(this@SettingsActivity, ScannerActivity::class.java)) }
+        }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(14) })
 
         fun section(title: String, options: List<String>, cur: String, set: (String) -> Unit, perRow: Int = 3) {
             val c = cardBox()

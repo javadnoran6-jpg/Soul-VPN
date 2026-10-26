@@ -19,6 +19,8 @@ object AppState {
     @Volatile var onChange: (() -> Unit)? = null
     @Volatile var onLog: ((String) -> Unit)? = null
     @Volatile var onStats: (() -> Unit)? = null
+    @Volatile var onIp: (() -> Unit)? = null
+    @Volatile var ipInfo: IpInfo? = null
 
     private const val MAX_LINES = 300
     private val main = Handler(Looper.getMainLooper())
@@ -28,9 +30,11 @@ object AppState {
     fun updateRunning(v: Boolean) {
         running = v; connecting = false
         connectedAt = if (v) System.currentTimeMillis() else 0L
-        if (!v) { rxTotal = 0L; txTotal = 0L; rxRate = 0L; txRate = 0L }
+        if (!v) { ipInfo = null; rxTotal = 0L; txTotal = 0L; rxRate = 0L; txRate = 0L }
         main.post { onChange?.invoke(); onStats?.invoke() }
     }
+
+    fun updateIp(i: IpInfo?) { ipInfo = i; main.post { onIp?.invoke() } }
 
     fun updateConnecting(v: Boolean) { connecting = v; main.post { onChange?.invoke() } }
 

@@ -10,6 +10,9 @@ class Prefs(c: Context) {
     var scan: String
         get() = sp.getString("scan", "Turbo")!!
         set(v) = sp.edit().putString("scan", v).apply()
+    var peer: String
+        get() = sp.getString("peer", "")!!
+        set(v) = sp.edit().putString("peer", v).apply()
     var ip: String
         get() = sp.getString("ip", "IPv4")!!
         set(v) = sp.edit().putString("ip", v).apply()
